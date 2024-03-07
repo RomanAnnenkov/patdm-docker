@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginx
+    volumes:
+     - ./configs/nginx/:/etc/nginx/conf.d/
+     - ./logs/nginx:/var/log/nginx
+    ports:
+     - "80:80"
+    environment:
+      TZ: "Europe/Moscow"
+    depends_on:
+      patdm-site:
+        condition: service_healthy
+
+  patdm-site:
+    container_name: patdm-site
+    build: ./patdm-site
+    volumes:
+      - ./storage:/home/node/app/storage
+      - ./logs/site:/home/node/app/logs
+      - ./configs/site:/home/node/app/config
+    depends_on:
+      patdm-converter:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health-check"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  patdm-converter:
+    container_name: patdm-converter
+    build: ./patdm-converter
+    volumes:
+      - ./storage:/app/storage
+      - ./logs/converter:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health-check"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
