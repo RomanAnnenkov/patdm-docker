@@ -4,6 +4,7 @@ services:
   nginx-proxy:
     container_name: nginx-proxy
     image: nginx
+    restart: always
     volumes:
      - ./configs/nginx/:/etc/nginx/conf.d/
      - ./logs/nginx:/var/log/nginx
@@ -18,6 +19,7 @@ services:
   patdm-site:
     container_name: patdm-site
     build: ./patdm-site
+    restart: always
     volumes:
       - ./storage:/home/node/app/storage
       - ./logs/site:/home/node/app/logs
@@ -35,6 +37,7 @@ services:
   patdm-converter:
     container_name: patdm-converter
     build: ./patdm-converter
+    restart: always
     volumes:
       - ./storage:/app/storage
       - ./logs/converter:/app/logs
